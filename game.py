@@ -8,7 +8,7 @@ def workout_angles(person, shape):
         x, y = person[0] - point[0], person[1] - point[1]
         angles.append((point, math.atan(x/y)))
 
-    angles.order(key=lambda x: x[1])
+    angles.sort(key=lambda x: x[1])
 
     return angles[0], angles[-1]
 
@@ -46,9 +46,6 @@ def main():
 
         screen.fill((0, 0, 0))
 
-        pygame.draw.polygon(screen, color, [[105,105],[205,205],[255,255],[105,255]], 1)
-
-        pygame.draw.polygon(screen, color, [[400,400],[500,400],[500,500],[400,500]], 1)
 
 
         player.rect.x = x
@@ -57,8 +54,18 @@ def main():
         block.rect.x = 600
         block.rect.y = 200
         block_list.add(block)
+
+        block2 = Polywog(color)
+        block2.rect.x = 100
+        block2.rect.y = 100
+        block_list.add(block2)
         block_list.draw(screen)
 
+        #print(block.corners())
+        pygame.draw.lines(screen, color, False, [workout_angles(player.rect.center, block.corners())[0][0], player.rect.center], 1)
+        pygame.draw.lines(screen, color, False, [workout_angles(player.rect.center, block.corners())[1][0], player.rect.center], 1)
+        pygame.draw.lines(screen, color, False, [workout_angles(player.rect.center, block2.corners())[0][0], player.rect.center], 1)
+        pygame.draw.lines(screen, color, False, [workout_angles(player.rect.center, block2.corners())[1][0], player.rect.center], 1)
         pygame.display.flip()
         clock.tick(60)
 
