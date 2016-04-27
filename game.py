@@ -13,7 +13,7 @@ def workout_angles(person, shape):
     return angles[0], angles[-1]
 
 
-def create_polygon(person, shape, size):
+def create_polygon(person, shape, size=(0,0)):
     angles = workout_angles(person, shape)
     first_point = person[0] - person[1]*math.tan(angles[0])
     second_point = person[1] - person[0]*math.tan(90 - angles[1])
