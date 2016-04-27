@@ -3,7 +3,6 @@ import pygame
 pygame.init()
 screen = pygame.display.set_mode((800, 640))
 done = False
-is_blue = True
 x = 400
 y = 320
 
