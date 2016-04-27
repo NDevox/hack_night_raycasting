@@ -12,6 +12,15 @@ def workout_angles(person, shape):
 
     return angles[0], angles[-1]
 
+
+def create_polygon(person, shape, size):
+    angles = workout_angles(person, shape)
+    first_point = person[0] - person[1]*math.tan(angles[0])
+    second_point = person[1] - person[0]*math.tan(90 - angles[1])
+
+    return first_point, second_point, angles[0][0], angles[1][0]
+
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((800, 640))
