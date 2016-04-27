@@ -9,3 +9,7 @@ class Polywog(pygame.sprite.Sprite):
        self.image.fill(color)
 
        self.rect = self.image.get_rect()
+
+   def corners(self):
+       r = self.rect
+       return [r.bottomleft, r.bottomright, r.topright, r.topleft]
