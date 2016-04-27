@@ -14,10 +14,10 @@ while not done:
             done = True
 
     pressed = pygame.key.get_pressed()
-    if pressed[pygame.K_UP]: y -= 3
-    if pressed[pygame.K_DOWN]: y += 3
-    if pressed[pygame.K_LEFT]: x -= 3
-    if pressed[pygame.K_RIGHT]: x += 3
+    if pressed[pygame.K_UP] or pressed[pygame.K_w]: y -= 3
+    if pressed[pygame.K_DOWN] or pressed[pygame.K_s]: y += 3
+    if pressed[pygame.K_LEFT] or pressed[pygame.K_a]: x -= 3
+    if pressed[pygame.K_RIGHT] or pressed[pygame.K_d]: x += 3
 
     screen.fill((0, 0, 0))
     color = (255, 100, 0)
