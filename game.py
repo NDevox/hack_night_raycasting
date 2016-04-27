@@ -1,6 +1,6 @@
 import pygame
 import math
-
+from polywog import Polywog
 
 def workout_angles(person, shape):
     angles = []
@@ -12,7 +12,6 @@ def workout_angles(person, shape):
 
     return angles[0], angles[-1]
 
-
 def main():
     pygame.init()
     screen = pygame.display.set_mode((800, 640))
@@ -21,7 +20,7 @@ def main():
     y = 320
 
     clock = pygame.time.Clock()
-
+    block_list = pygame.sprite.Group()
     while not done:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -42,6 +41,12 @@ def main():
         pygame.draw.polygon(screen, color, [[400,400],[500,400],[500,500],[400,500]], 1)
 
         pygame.draw.rect(screen, color, pygame.Rect(x, y, 5, 5))
+
+        block = Polywog(color)
+        block.rect.x = 600
+        block.rect.y = 200
+        block_list.add(block)
+        block_list.draw(screen)
 
         pygame.display.flip()
         clock.tick(60)
