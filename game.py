@@ -18,9 +18,11 @@ def main():
     done = False
     x = 400
     y = 320
-
+    color = (255, 100, 0)
+    player = Polywog(color)
     clock = pygame.time.Clock()
     block_list = pygame.sprite.Group()
+    block_list.add(player)
     while not done:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -34,14 +36,14 @@ def main():
         if pressed[pygame.K_RIGHT] or pressed[pygame.K_d]: x += 3
 
         screen.fill((0, 0, 0))
-        color = (255, 100, 0)
 
         pygame.draw.polygon(screen, color, [[105,105],[205,205],[255,255],[105,255]], 1)
 
         pygame.draw.polygon(screen, color, [[400,400],[500,400],[500,500],[400,500]], 1)
 
-        pygame.draw.rect(screen, color, pygame.Rect(x, y, 5, 5))
 
+        player.rect.x = x
+        player.rect.y = y
         block = Polywog(color)
         block.rect.x = 600
         block.rect.y = 200
