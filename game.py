@@ -56,10 +56,10 @@ def workout_angles(person, shape):
         try:
             if (pos['left'] and not pos['bottom']) \
                 or not pos['left'] and pos['bottom']:
-                angles.append((point, math.atan(y/x), pos))
+                angles.append((point, math.atan2(x,y), pos))
 
             else:
-                angles.append((point, math.atan(x/y), pos))
+                angles.append((point, math.atan2(y,x), pos))
         except ZeroDivisionError:
             pass
 
@@ -79,7 +79,7 @@ def angle_y(angle, pos, corner):
     """
     x, y = get_x_y(pos, corner)
 
-    return math.atan(x/y) > angle
+    return math.atan2(x,y) > angle
 
 
 def sort_coords(coords):
@@ -113,41 +113,44 @@ def create_polygon(person, shape, size=(0, 0)):
         m = (angle[0][1] - person[1])/(angle[0][0]-person[0])  # get the gradient.
         c = (m*person[0] - person[1])  # get the y intercept.
 
-        # They are in the top left.
-        if angle[2]['left'] and not angle[2]['bottom']:
-            if angle_y(angle[1], angle[0], (0,0)):  # we need to find the y.
-                y = round(m * 0 + c)
-                points.append((0, y))
-            else:  # we need to find the x.
-                x = round((0 + c) / m)
-                points.append((x, 0))
+        try:
+            # They are in the top left.
+            if angle[2]['left'] and not angle[2]['bottom']:
+                if angle_y(angle[1], angle[0], (0,0)):  # we need to find the y.
+                    y = round(m * 0 + c)
+                    points.append((0, y))
+                else:  # we need to find the x.
+                    x = round((0 + c) / m)
+                    points.append((x, 0))
 
-        # They are in the top right.
-        elif not angle[2]['left'] and not angle[2]['bottom']:
-            if angle_y(angle[1], angle[0], (size[0],0)):  # we need to find the y.
-                y = round(m * size[0] + c)
-                points.append((size[0], y))
-            else:  # we need to find the x.
-                x = round((0 + c) / m)
-                points.append((x, 0))
+            # They are in the top right.
+            elif not angle[2]['left'] and not angle[2]['bottom']:
+                if angle_y(angle[1], angle[0], (size[0],0)):  # we need to find the y.
+                    y = round(m * size[0] + c)
+                    points.append((size[0], y))
+                else:  # we need to find the x.
+                    x = round((0 + c) / m)
+                    points.append((x, 0))
 
-        # They are in the bottom right.
-        elif not angle[2]['left'] and angle[2]['bottom']:
-            if angle_y(angle[1], angle[0], size):  # we need to find the y.
-                y = round(m * size[0] + c)
-                points.append((size[0], y))
-            else:  # we need to find the x.
-                x = round((size[1] + c) / m)
-                points.append((x, size[1]))
+            # They are in the bottom right.
+            elif not angle[2]['left'] and angle[2]['bottom']:
+                if angle_y(angle[1], angle[0], size):  # we need to find the y.
+                    y = round(m * size[0] + c)
+                    points.append((size[0], y))
+                else:  # we need to find the x.
+                    x = round((size[1] + c) / m)
+                    points.append((x, size[1]))
 
-        # They are in the bottom left.
-        elif angle[2]['left'] and angle[2]['bottom']:
-            if angle_y(angle[1], angle[0], (0,size[1])):  # we need to find the y.
-                y = round(m * 0 + c)
-                points.append((0, y))
-            else:  # we need to find the x.
-                x = round((size[1] + c) / m)
-                points.append((x, size[1]))
+            # They are in the bottom left.
+            elif angle[2]['left'] and angle[2]['bottom']:
+                if angle_y(angle[1], angle[0], (0,size[1])):  # we need to find the y.
+                    y = round(m * 0 + c)
+                    points.append((0, y))
+                else:  # we need to find the x.
+                    x = round((size[1] + c) / m)
+                    points.append((x, size[1]))
+        except ZeroDivisionError:
+            pass
 
     return sort_coords(points)  # sort for drawing purposes.
 
