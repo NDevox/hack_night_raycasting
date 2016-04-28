@@ -2,11 +2,43 @@ import pygame
 import math
 from polywog import Polywog
 
+def which_side(x, y):
+
+    pos = {}
+    pos['zero_x'] = False
+
+    if x < 0:
+        pos['left'] = False
+    elif x > 0:
+        pos['left'] = True
+    else:
+        pos['left'] = False
+        pos['zero_x'] = True
+
+    pos['zero_y'] = False
+
+    if y < 0:
+        pos['bottom'] = False
+    elif y > 0:
+        pos['bottom'] = False
+    else:
+        pos['bottom'] = False
+        pos['zero_y'] = True
+
+    return pos
+
 def workout_angles(person, shape):
     angles = []
     for point in shape:
         x, y = person[0] - point[0], person[1] - point[1]
-        angles.append((point, math.atan(x/y)))
+        pos = which_side(x, y)
+
+        if (pos['left'] and not pos['bottom']) \
+            or not pos['left'] and pos['bottom']:
+            angles.append((point, math.atan(y/x)))
+
+        else:
+            angles.append((point, math.atan(x/y)))
 
     angles.sort(key=lambda x: x[1])
 
@@ -15,8 +47,14 @@ def workout_angles(person, shape):
 
 def create_polygon(person, shape, size=(0,0)):
     angles = workout_angles(person, shape)
-    first_point = person[0] - person[1]*math.tan(angles[0])
-    second_point = person[1] - person[0]*math.tan(90 - angles[1])
+    #if shape if left and above point then we go 0 0
+    #if shape is right and above point theb we go 1 0
+    #if shape is left and down w
+    # will do
+    # the dude in front had  really good point if it is easy to do in python
+    # polar co-ordinates
+    first_point = (person[0] - person[1]) * math.sin(angles[0][1])
+    second_point = (person[1] - person[0])*math.sin(math.pi/2 - angles[1][1])
 
     return first_point, second_point, angles[0][0], angles[1][0]
 
@@ -62,6 +100,7 @@ def main():
         block_list.draw(screen)
 
         #print(block.corners())
+        print(create_polygon(player.rect.center, block.corners()))
         pygame.draw.lines(screen, color, False, [workout_angles(player.rect.center, block.corners())[0][0], player.rect.center], 1)
         pygame.draw.lines(screen, color, False, [workout_angles(player.rect.center, block.corners())[1][0], player.rect.center], 1)
         pygame.draw.lines(screen, color, False, [workout_angles(player.rect.center, block2.corners())[0][0], player.rect.center], 1)
