@@ -42,17 +42,11 @@ def workout_angles(person, shape):
 
     angles.sort(key=lambda x: x[1])
 
-    return angles[0], angles[-1]
+    return angles[0], angles[-1], pos
 
 
 def create_polygon(person, shape, size=(0,0)):
     angles = workout_angles(person, shape)
-    #if shape if left and above point then we go 0 0
-    #if shape is right and above point theb we go 1 0
-    #if shape is left and down w
-    # will do
-    # the dude in front had  really good point if it is easy to do in python
-    # polar co-ordinates
     first_point = (person[0] - person[1]) * math.sin(angles[0][1])
     second_point = (person[1] - person[0])*math.sin(math.pi/2 - angles[1][1])
 
