@@ -2,33 +2,41 @@ import pygame
 import math
 from polywog import Polywog
 
+
 def which_side(x, y):
-
+    """
+    We need to figure out which quadrant the polygon is in relative to our point.
+    :param x: int, x co-ord difference
+    :param y: int, y co-ord difference
+    :return: dict, containing if the polygon is left and below the point.
+    """
     pos = {}
-    pos['zero_x'] = False
 
-    if x < 0:
+    if x < 0:  # it is not left
         pos['left'] = False
     elif x > 0:
         pos['left'] = True
-    else:
+    else:  # I believe a false here avoids a DivisionByZero error.
         pos['left'] = False
-        pos['zero_x'] = True
 
-    pos['zero_y'] = False
-
-    if y < 0:
+    if y < 0:  # it is not below
         pos['bottom'] = False
     elif y > 0:
         pos['bottom'] = False
-    else:
+    else:  # avoiding DivisionByZero
         pos['bottom'] = False
-        pos['zero_y'] = True
 
     return pos
 
 
 def workout_angles(person, shape):
+    """
+    Find the angles with the largest difference on all the triangles between the shapes vertices and the person.
+
+    :param person: tuple (x,y), the persons co-ordinates
+    :param shape: list[tuple(x,y)], list of the vertices co-ordinates for a shape
+    :return: list[tuple((x,y), (angle))], list of tuples holding the co-ordinates in a tuple, and the angle.
+    """
     angles = []
     for point in shape:
         x, y = person[0] - point[0], person[1] - point[1]
@@ -53,18 +61,18 @@ def create_polygon(person, shape, size=(0,0)):
 
     for angle in angles:
         if angle[2]['left'] and not angle[2]['bottom']:
-            points.append((round(person[1] - (person[0] * math.tan(angle[1]))), size[1]))
+            points.append((person[1] - round(person[0] * math.tan(angle[1])), 0))
 
         elif not angle[2]['left'] and not angle[2]['bottom']:
-            points.append((round(person[0] - ((size[1] - person[1]) * math.tan(angle[1]))), 0))
+            points.append((person[0] - round((size[1] - person[1]) * math.tan(angle[1])), 0))
 
         elif not angle[2]['left'] and angle[2]['bottom']:
-            points.append((0, person[1]  + round((person[0] * math.tan(angle[1])))))
+            points.append((size[0], person[0] - round((size[1] - person[1]) * math.tan(angle[1]))))
 
         elif angle[2]['left'] and angle[2]['bottom']:
-            points.append((0, person[1]  + round((person[0] * math.tan(angle[1])))))
+            points.append((size[0], person[1] - round((person[0] * math.tan(angle[1])))))
 
-    return points + [angles[0][0], angles[1][0]]
+    return sorted(points + [angles[0][0], angles[1][0]], key=lambda x:min(map(abs, x)))
 
 
 def main():
@@ -73,7 +81,7 @@ def main():
     done = False
     x = 400
     y = 320
-    color = (255, 100, 0)
+    color = (200, 200, 255)
     player = Polywog(color)
     clock = pygame.time.Clock()
     block_list = pygame.sprite.Group()
@@ -111,8 +119,8 @@ def main():
         pygame.draw.lines(screen, color, False, [workout_angles(player.rect.center, block.corners())[1][0], player.rect.center], 1)
         pygame.draw.lines(screen, color, False, [workout_angles(player.rect.center, block2.corners())[0][0], player.rect.center], 1)
         pygame.draw.lines(screen, color, False, [workout_angles(player.rect.center, block2.corners())[1][0], player.rect.center], 1)
-        pygame.draw.polygon(screen, color, create_polygon(player.rect.center, block.corners(), (800, 640)), 1)
-        pygame.draw.polygon(screen, color, create_polygon(player.rect.center, block2.corners(), (800, 640)), 1)
+        pygame.draw.polygon(screen, color, create_polygon(player.rect.center, block.corners(), (800, 640)), 0)
+        pygame.draw.polygon(screen, color, create_polygon(player.rect.center, block2.corners(), (800, 640)), 0)
         pygame.display.flip()
         clock.tick(60)
 
