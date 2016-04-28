@@ -54,11 +54,20 @@ def workout_angles(person, shape):
     return angles[0], angles[-1]
 
 
-def create_polygon(person, shape, size=(0,0)):
-    angles = workout_angles(person, shape)
+def create_polygon(person, shape, size=(0, 0)):
+    """
+    Using the person position and shape, calculate a polygon for its shadow.
+
+    :param person: tuple(x,y), the persons co-ordinates.
+    :param shape: list[tuple(x,y)], a list of a shapes vertices.
+    :param size: tuple(x,y), the size of the screen.
+    :return: list[tuple(x,y)], a list of co-ordinates for the shadow to be drawn.
+    """
+    angles = workout_angles(person, shape)  # Lets get the angles to find the points on the wall.
 
     points = []
 
+    # I think we all now know that I am not good at trig under pressure.
     for angle in angles:
         if angle[2]['left'] and not angle[2]['bottom']:
             points.append((person[1] - round(person[0] * math.tan(angle[1])), 0))
@@ -72,6 +81,7 @@ def create_polygon(person, shape, size=(0,0)):
         elif angle[2]['left'] and angle[2]['bottom']:
             points.append((size[0], person[1] - round((person[0] * math.tan(angle[1])))))
 
+    # I'll think of why this logically works soon.
     return sorted(points + [angles[0][0], angles[1][0]], key=lambda x:min(map(abs, x)))
 
 
@@ -86,6 +96,7 @@ def main():
     clock = pygame.time.Clock()
     block_list = pygame.sprite.Group()
     block_list.add(player)
+
     while not done:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
