@@ -27,6 +27,7 @@ def which_side(x, y):
 
     return pos
 
+
 def workout_angles(person, shape):
     angles = []
     for point in shape:
@@ -35,22 +36,35 @@ def workout_angles(person, shape):
 
         if (pos['left'] and not pos['bottom']) \
             or not pos['left'] and pos['bottom']:
-            angles.append((point, math.atan(y/x)))
+            angles.append((point, math.atan(y/x), pos))
 
         else:
-            angles.append((point, math.atan(x/y)))
+            angles.append((point, math.atan(x/y), pos))
 
     angles.sort(key=lambda x: x[1])
 
-    return angles[0], angles[-1], pos
+    return angles[0], angles[-1]
 
 
 def create_polygon(person, shape, size=(0,0)):
     angles = workout_angles(person, shape)
-    first_point = (person[0] - person[1]) * math.sin(angles[0][1])
-    second_point = (person[1] - person[0])*math.sin(math.pi/2 - angles[1][1])
 
-    return first_point, second_point, angles[0][0], angles[1][0]
+    points = []
+
+    for angle in angles:
+        if angle[2]['left'] and not angle[2]['bottom']:
+            points.append((round(person[1] - (person[0] * math.tan(angle[1]))), size[1]))
+
+        elif not angle[2]['left'] and not angle[2]['bottom']:
+            points.append((round(person[0] - ((size[1] - person[1]) * math.tan(angle[1]))), 0))
+
+        elif not angle[2]['left'] and angle[2]['bottom']:
+            points.append((0, person[1]  + round((person[0] * math.tan(angle[1])))))
+
+        elif angle[2]['left'] and angle[2]['bottom']:
+            points.append((0, person[1]  + round((person[0] * math.tan(angle[1])))))
+
+    return points + [angles[0][0], angles[1][0]]
 
 
 def main():
@@ -93,12 +107,12 @@ def main():
         block_list.add(block2)
         block_list.draw(screen)
 
-        #print(block.corners())
-        print(create_polygon(player.rect.center, block.corners()))
         pygame.draw.lines(screen, color, False, [workout_angles(player.rect.center, block.corners())[0][0], player.rect.center], 1)
         pygame.draw.lines(screen, color, False, [workout_angles(player.rect.center, block.corners())[1][0], player.rect.center], 1)
         pygame.draw.lines(screen, color, False, [workout_angles(player.rect.center, block2.corners())[0][0], player.rect.center], 1)
         pygame.draw.lines(screen, color, False, [workout_angles(player.rect.center, block2.corners())[1][0], player.rect.center], 1)
+        pygame.draw.polygon(screen, color, create_polygon(player.rect.center, block.corners(), (800, 640)), 1)
+        pygame.draw.polygon(screen, color, create_polygon(player.rect.center, block2.corners(), (800, 640)), 1)
         pygame.display.flip()
         clock.tick(60)
 
