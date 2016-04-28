@@ -110,10 +110,10 @@ def create_polygon(person, shape, size=(0, 0)):
 
     for angle in angles:
 
-        m = (angle[0][1] - person[1])/(angle[0][0]-person[0])  # get the gradient.
-        c = (m*person[0] - person[1])  # get the y intercept.
-
         try:
+            m = (angle[0][1] - person[1])/(angle[0][0]-person[0])  # get the gradient.
+            c = (m*person[0] - person[1])  # get the y intercept.
+
             # They are in the top left.
             if angle[2]['left'] and not angle[2]['bottom']:
                 if angle_y(angle[1], angle[0], (0,0)):  # we need to find the y.
@@ -168,7 +168,19 @@ def main():
     color = (200, 200, 255)
     player = Polywog(color)
     clock = pygame.time.Clock()
+
+    # instantiate and store the polygon blocks.
     block_list = pygame.sprite.Group()
+
+    block = Polywog(color)
+    block.rect.x = 600
+    block.rect.y = 200
+    block_list.add(block)
+
+    block2 = Polywog(color)
+    block2.rect.x = 100
+    block2.rect.y = 100
+    block_list.add(block2)
 
     # event loop starts here.
     while not done:
@@ -187,23 +199,16 @@ def main():
         # Dark background
         screen.fill((0, 0, 0))
 
+        # get the player moved.
         player.rect.x = x
         player.rect.y = y
-        block = Polywog(color)
-        block.rect.x = 600
-        block.rect.y = 200
-        block_list.add(block)
 
-        block2 = Polywog(color)
-        block2.rect.x = 100
-        block2.rect.y = 100
-        block_list.add(block2)
         block_list.draw(screen)
 
         for obj in block_list:
             # draw lines of sight to the corners.
-            pygame.draw.lines(screen, color, False, [workout_angles(player.rect.center, obj.corners())[0][0], player.rect.center], 1)
-            pygame.draw.lines(screen, color, False, [workout_angles(player.rect.center, obj.corners())[1][0], player.rect.center], 1)
+            pygame.draw.lines(screen, (200, 0, 0), False, [workout_angles(player.rect.center, obj.corners())[0][0], player.rect.center], 1)
+            pygame.draw.lines(screen, (200, 0, 0), False, [workout_angles(player.rect.center, obj.corners())[1][0], player.rect.center], 1)
 
             # Draw the shadows.
             pygame.draw.polygon(screen, color, create_polygon(player.rect.center, obj.corners(), size), 0)
