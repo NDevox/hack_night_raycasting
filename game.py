@@ -31,10 +31,10 @@ def which_side(x, y):
     else:  # I believe a false here avoids a DivisionByZero error.
         pos['left'] = False
 
-    if y < 0:  # it is below
-        pos['bottom'] = False
-    elif y > 0:
+    if y < 0:  # it is below.
         pos['bottom'] = True
+    elif y > 0:
+        pos['bottom'] = False
     else:  # avoiding DivisionByZero
         pos['bottom'] = False
 
@@ -82,6 +82,19 @@ def angle_y(angle, pos, corner):
     return math.atan(x/y) > angle
 
 
+def sort_coords(coords):
+    """
+    Sort points based on rotation around their polar co-ordinates.
+
+    :param coords: list[tuple(x,y)], list of co-ordinates to be sorted.
+    :return: list[tuple(x,y)], list of sorted co-ordinates.
+    """
+    centres = (sum(c[0] for c in coords)/len(coords), sum(c[1] for c in coords)/len(coords))
+    coords.sort(key=lambda c: math.atan2(c[1]-centres[1], c[0]-centres[0]))
+
+    return coords
+
+
 def create_polygon(person, shape, size=(0, 0)):
     """
     Using the person position and shape, calculate a polygon for its shadow.
@@ -93,70 +106,74 @@ def create_polygon(person, shape, size=(0, 0)):
     """
     angles = workout_angles(person, shape)  # Lets get the angles to find the points on the wall.
 
-    points = []
+    points = [angles[0][0], angles[1][0]]
 
     for angle in angles:
 
-        m = (angle[0][1] - person[1])/(angle[0][0]-person[0])
-        c = (m*person[0] - person[1])
+        m = (angle[0][1] - person[1])/(angle[0][0]-person[0])  # get the gradient.
+        c = (m*person[0] - person[1])  # get the y intercept.
+
         # They are in the top left.
         if angle[2]['left'] and not angle[2]['bottom']:
-            if angle_y(angle[1], angle[0], (0,0)):
-                y = person[1] - round(person[0] * math.tan(angle[1]))
+            if angle_y(angle[1], angle[0], (0,0)):  # we need to find the y.
+                y = round(m * 0 + c)
                 points.append((0, y))
-            else:
-                x = person[0] - round(person[1] / math.tan(angle[1]))
+            else:  # we need to find the x.
+                x = round((0 + c) / m)
                 points.append((x, 0))
 
         # They are in the top right.
         elif not angle[2]['left'] and not angle[2]['bottom']:
-            if angle_y(angle[1], angle[0], (size[0],0)):
-                print(1)
+            if angle_y(angle[1], angle[0], (size[0],0)):  # we need to find the y.
                 y = round(m * size[0] + c)
                 points.append((size[0], y))
-            else:
-                print(2)
+            else:  # we need to find the x.
                 x = round((0 + c) / m)
                 points.append((x, 0))
 
         # They are in the bottom right.
         elif not angle[2]['left'] and angle[2]['bottom']:
-            if angle_y(angle[1], angle[0], size):
-                y = person[1] + round(person[0] * math.tan(angle[1]))
+            if angle_y(angle[1], angle[0], size):  # we need to find the y.
+                y = round(m * size[0] + c)
                 points.append((size[0], y))
-            else:
-                x = person[0] + round(person[1] / math.tan(angle[1]))
+            else:  # we need to find the x.
+                x = round((size[1] + c) / m)
                 points.append((x, size[1]))
 
         # They are in the bottom left.
         elif angle[2]['left'] and angle[2]['bottom']:
-            if angle_y(angle[1], angle[0], (0,size[1])):
+            if angle_y(angle[1], angle[0], (0,size[1])):  # we need to find the y.
                 y = round(m * 0 + c)
                 points.append((0, y))
-            else:
+            else:  # we need to find the x.
                 x = round((size[1] + c) / m)
                 points.append((x, size[1]))
 
-    # I'll think of why this logically works soon.
-    return sorted(points + [angles[0][0], angles[1][0]], key=lambda x:max(map(abs, x)))
+    return sort_coords(points)  # sort for drawing purposes.
 
 
 def main():
+    """ event loop for the raycaster """
     pygame.init()
-    screen = pygame.display.set_mode((800, 640))
+    size = (800, 640)
+    screen = pygame.display.set_mode(size)
     done = False
     x = 400
     y = 320
+
+    # Lets invert colours, shadows are now bluey white.
     color = (200, 200, 255)
     player = Polywog(color)
     clock = pygame.time.Clock()
     block_list = pygame.sprite.Group()
 
+    # event loop starts here.
     while not done:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
 
+        # deal with movement (by key not mouse).
         pressed = pygame.key.get_pressed()
 
         if pressed[pygame.K_UP] or pressed[pygame.K_w]: y -= 3
@@ -164,6 +181,7 @@ def main():
         if pressed[pygame.K_LEFT] or pressed[pygame.K_a]: x -= 3
         if pressed[pygame.K_RIGHT] or pressed[pygame.K_d]: x += 3
 
+        # Dark background
         screen.fill((0, 0, 0))
 
         player.rect.x = x
@@ -185,10 +203,10 @@ def main():
             pygame.draw.lines(screen, color, False, [workout_angles(player.rect.center, obj.corners())[1][0], player.rect.center], 1)
 
             # Draw the shadows.
-            pygame.draw.polygon(screen, color, create_polygon(player.rect.center, obj.corners(), (800, 640)), 0)
+            pygame.draw.polygon(screen, color, create_polygon(player.rect.center, obj.corners(), size), 0)
 
         pygame.display.update()
-        clock.tick(60)
+        clock.tick(30)
 
 
 if __name__ == '__main__':
