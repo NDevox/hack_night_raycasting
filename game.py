@@ -142,8 +142,6 @@ def main():
     size = (800, 640)
     screen = pygame.display.set_mode(size)
     done = False
-    x = 400
-    y = 320
 
     # Lets invert colours, shadows are now bluey white.
     color = (200, 200, 255)
@@ -172,17 +170,11 @@ def main():
         # deal with movement (by key not mouse).
         pressed = pygame.key.get_pressed()
 
-        if pressed[pygame.K_UP] or pressed[pygame.K_w]: y -= 3
-        if pressed[pygame.K_DOWN] or pressed[pygame.K_s]: y += 3
-        if pressed[pygame.K_LEFT] or pressed[pygame.K_a]: x -= 3
-        if pressed[pygame.K_RIGHT] or pressed[pygame.K_d]: x += 3
-
         # Dark background
         screen.fill((0, 0, 0))
 
         # get the player moved.
-        player.rect.x = x
-        player.rect.y = y
+        player.rect.x, player.rect.y = pygame.mouse.get_pos()
 
         block_list.draw(screen)
 
