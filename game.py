@@ -54,32 +54,24 @@ def workout_angles(person, shape):
         x, y = get_x_y(person, point)
         pos = which_side(x, y)
         try:
-            if (pos['left'] and not pos['bottom']) \
-                or not pos['left'] and pos['bottom']:
+            if pos['left'] and not pos['bottom']:
+                angles.append((point, 1/math.atan(y/x), pos))
+
+            elif not pos['left'] and pos['bottom']:
+                angles.append((point, math.atan(x/y), pos))
+
+            elif not pos['left'] and not pos['bottom']:
+                angles.append((point, math.atan2(y,x), pos))
+
+            elif pos['left'] and pos['bottom']:
                 angles.append((point, math.atan2(x,y), pos))
 
-            else:
-                angles.append((point, math.atan2(y,x), pos))
         except ZeroDivisionError:
             pass
 
     angles.sort(key=lambda x: x[1])
 
     return angles[0], angles[-1]
-
-
-def angle_y(angle, pos, corner):
-    """
-    Is the angle between the corner to the polygon bigger than the polygon to the person?
-
-    :param angle: float, Angle between person and polygon.
-    :param pos: tuple(x,y), Polygon position.
-    :param corner: tuple(x,y), corner.
-    :return: bool, it is or isn't.
-    """
-    x, y = get_x_y(pos, corner)
-
-    return math.atan2(x,y) > angle
 
 
 def sort_coords(coords):
@@ -99,6 +91,10 @@ def create_polygon(person, shape, size=(0, 0)):
     """
     Using the person position and shape, calculate a polygon for its shadow.
 
+    The bit calculating the co-ordinates may look odd as we only care about x co-ordinates.
+    But logically as long as we know where we hit the y axis, we shouldn't really need to care about the x.
+    It would probably work vice versa as well.
+
     :param person: tuple(x,y), the persons co-ordinates.
     :param shape: list[tuple(x,y)], a list of a shapes vertices.
     :param size: tuple(x,y), the size of the screen.
@@ -116,39 +112,24 @@ def create_polygon(person, shape, size=(0, 0)):
 
             # They are in the top left.
             if angle[2]['left'] and not angle[2]['bottom']:
-                if angle_y(angle[1], angle[0], (0,0)):  # we need to find the y.
-                    y = round(m * 0 + c)
-                    points.append((0, y))
-                else:  # we need to find the x.
-                    x = round((0 + c) / m)
-                    points.append((x, 0))
+                x = round((0 + c) / m)
+                points.append((x, 0))
 
             # They are in the top right.
             elif not angle[2]['left'] and not angle[2]['bottom']:
-                if angle_y(angle[1], angle[0], (size[0],0)):  # we need to find the y.
-                    y = round(m * size[0] + c)
-                    points.append((size[0], y))
-                else:  # we need to find the x.
-                    x = round((0 + c) / m)
-                    points.append((x, 0))
+                x = round((0 + c) / m)
+                points.append((x, 0))
 
             # They are in the bottom right.
             elif not angle[2]['left'] and angle[2]['bottom']:
-                if angle_y(angle[1], angle[0], size):  # we need to find the y.
-                    y = round(m * size[0] + c)
-                    points.append((size[0], y))
-                else:  # we need to find the x.
-                    x = round((size[1] + c) / m)
-                    points.append((x, size[1]))
+                x = round((size[1] + c) / m)
+                points.append((x, size[1]))
 
             # They are in the bottom left.
             elif angle[2]['left'] and angle[2]['bottom']:
-                if angle_y(angle[1], angle[0], (0,size[1])):  # we need to find the y.
-                    y = round(m * 0 + c)
-                    points.append((0, y))
-                else:  # we need to find the x.
-                    x = round((size[1] + c) / m)
-                    points.append((x, size[1]))
+                x = round((size[1] + c) / m)
+                points.append((x, size[1]))
+
         except ZeroDivisionError:
             pass
 
